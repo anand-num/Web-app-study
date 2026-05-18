@@ -11,6 +11,7 @@
 <body>
 <user-card name="Bat">
   <button>Follow</button>
+  <p slot="username">Neguun</p>
 </user-card>
 
 <script>
@@ -33,6 +34,7 @@ class UserCard extends HTMLElement {
 
         <!-- SLOT HERE -->
         <slot></slot>
+        <slot name="username"></slot>
       </div>
     `;
   }
