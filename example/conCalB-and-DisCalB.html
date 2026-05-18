@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Component Lifecycle Demo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 40px;
+            background-color: #f9f9fb;
+            color: #333;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 500px;
+        }
+        button {
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+        button.add-mode {
+            background-color: #2ed573;
+        }
+        #container {
+            padding: 15px;
+            border: 2px dashed #ced4da;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            min-height: 40px;
+        }
+        live-timer {
+            display: block;
+            color: #57606f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Web Component Lifecycle Demo</h2>
+        <p><strong>Instructions:</strong> Right-click anywhere on this page, click <strong>Inspect</strong>, and open the <strong>Console</strong> tab to watch the logs.</p>
+        
+        <!-- Toggle button to insert and destroy our custom element -->
+        <button id="toggle-btn">Remove Timer Element</button>
+
+        <div id="container">
+            <!-- Initial element loaded on page bootup -->
+            <live-timer>⏳ The custom timer element is currently active inside the DOM.</live-timer>
+        </div>
+    </div>
+
+    <script>
+        // 1. Defining the Custom Element class you provided
+        class LiveTimer extends HTMLElement {
+            connectedCallback() {
+                // Starts the timer when the element hits the screen
+                this.timerId = setInterval(() => {
+                    console.log("Секунд өнгөрлөө (A second passed)");
+                }, 1000);
+            }
+
+            disconnectedCallback() {
+                // Stops the timer when the element is removed
+                clearInterval(this.timerId);
+                console.log("Таймер зогслоо (Timer stopped).");
+            }
+        }
+        
+        // Registering the custom element with the browser
+        customElements.define('live-timer', LiveTimer);
+
+        // 2. Interactivity Script: Toggling the element in and out of existence
+        const toggleBtn = document.getElementById('toggle-btn');
+        const container = document.getElementById('container');
+        let timerElement = document.querySelector('live-timer');
+
+        toggleBtn.addEventListener('click', () => {
+            if (timerElement) {
+                // If it exists, wipe it from the DOM entirely. 
+                // This forces 'disconnectedCallback()' to trigger instantly.
+                timerElement.remove();
+                timerElement = null; // Clear reference
+                
+                toggleBtn.textContent = "Add Timer Element";
+                toggleBtn.classList.add('add-mode');
+                container.innerHTML = "<em>The element is dead. Notice the console logs stopped!</em>";
+            } else {
+                // If it's missing, generate a brand new instance programmatically.
+                // Appending it to the container forces 'connectedCallback()' to kick off.
+                timerElement = document.createElement('live-timer');
+                timerElement.textContent = "⏳ The custom timer element is currently active inside the DOM.";
+                
+                container.innerHTML = ""; // Clear placeholder text
+                container.appendChild(timerElement);
+                
+                toggleBtn.textContent = "Remove Timer Element";
+                toggleBtn.classList.remove('add-mode');
+            }
+        });
+    </script>
+</body>
+</html>
